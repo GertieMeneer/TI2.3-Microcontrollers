@@ -5,9 +5,10 @@
 #include <avr/interrupt.h>
 #include "lcd.h"
 
-#define LCD_E 	6  // RA6 UNI-6
-#define LCD_RS	4  // RA4 UNI-6
+#define LCD_E 	6
+#define LCD_RS	4
 
+//used to enable a signal (E)
 void lcd_strobe_lcd_e(void) {
 	PORTA |= (1<<LCD_E);
 	_delay_ms(1);			
@@ -15,38 +16,33 @@ void lcd_strobe_lcd_e(void) {
 	_delay_ms(1);			
 }
 
-void lcd_write_string(char *str) {
+//writes characters to lcd
+void display_text(char *str) {
 	for(;*str; str++){
 		lcd_write_data(*str);
 	}
 }
 
+//writing data to display
 void lcd_write_data(unsigned char byte) {
-	// First nibble.
 	PORTC = byte;
 	PORTA |= (1<<LCD_RS);
 	lcd_strobe_lcd_e();
 
-	// Second nibble
 	PORTC = (byte<<4);
 	PORTA |= (1<<LCD_RS);
 	lcd_strobe_lcd_e();
 }
 
+//same as lcd_write_data, but without enabling register select, because command bytes, not data bytes
 void lcd_write_command(unsigned char byte) {
-	// First nibble.
 	PORTC = byte;
 	PORTA &= ~(1<<LCD_RS);
 	lcd_strobe_lcd_e();
 
-	// Second nibble
 	PORTC = (byte<<4);
 	PORTA &= ~(1<<LCD_RS);
 	lcd_strobe_lcd_e();
-}
-
-void display_text(char *str){
-	lcd_write_string(str);
 }
 
 void set_cursor(int position){
@@ -56,17 +52,19 @@ void set_cursor(int position){
 }
 
 int main( void ) {
+	//init display
 	init();
 	
+	//set cursor to position
 	set_cursor(3);
 	
 	char myString[] = "YAYYYYY!";
 
-	// Write sample string
-	lcd_write_string(myString);
+	//write string
+	display_text(myString);
 
 	while (1) {
-		PORTC ^= (1<<0);	// Toggle PORTD.7
+		PORTC ^= (1<<0);
 		_delay_ms(250);
 	}
 
@@ -74,36 +72,29 @@ int main( void ) {
 }
 
 void init(){
-	// Init I/O
+	//setup ins and outs
 	DDRC = 0xFF;
 	PORTC = 0xFF;
 
-	// Init LCD
-	// PORTC output mode and all low (also E and RS pin)
 	DDRD = 0xFF;
 	DDRA = 0xFF;
 	PORTC = 0x00;
 	PORTA = 0x00;
-	//PORTA = 0xFF;
 
-	// Step 2 (table 12)
 	PORTC = 0x20;	// function set
 	lcd_strobe_lcd_e();
 
-	// Step 3 (table 12)
 	PORTC = 0x20;   // function set
 	lcd_strobe_lcd_e();
 	PORTC = 0x80;
 	lcd_strobe_lcd_e();
 
-	// Step 4 (table 12)
-	PORTC = 0x00;   // Display on/off control
+	PORTC = 0x00;   // display on/off
 	lcd_strobe_lcd_e();
 	PORTC = 0xF0;
 	lcd_strobe_lcd_e();
 
-	// Step 4 (table 12)
-	PORTC = 0x00;   // Entry mode set
+	PORTC = 0x00;   // entry mode set 4 bit mode
 	lcd_strobe_lcd_e();
 	PORTC = 0x60;
 	lcd_strobe_lcd_e();
@@ -114,7 +105,7 @@ void init(){
 }
 
 void lcd_clear() {
-	lcd_write_command (0x01);						//Leeg display
+	lcd_write_command (0x01);	//clear display
 	_delay_ms(2);
-	lcd_write_command (0x80);						//Cursor terug naar start
+	lcd_write_command (0x80);	//cursor back to start
 }
