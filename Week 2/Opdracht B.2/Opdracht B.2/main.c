@@ -28,8 +28,7 @@ int main(void) {
 	sei(); // Enable global interrupt system
 
 	while (1) {
-		PORTD ^= (1 << 7); // Toggle PORTD.7
-		wait(500);
+		//empty :)
 	}
 
 	return 1;
