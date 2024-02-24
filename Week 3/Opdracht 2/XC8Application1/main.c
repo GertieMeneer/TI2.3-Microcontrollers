@@ -4,55 +4,49 @@
 
 volatile uint8_t pulse_high = 1; // Indicator voor hoog- en laagperiode van de puls
 
-// Functie om Timer/Counter 2 te initialiseren voor CTC-modus
+// initialiseer timer/counter 2 in CTC-modus
 void timer2_init() {
-	// Zet Timer/Counter 2 in CTC-modus (WGM21:0 = 2)
+	// zet timer/counter in ctc-modus
 	TCCR2 |= (1 << WGM21);
 	
-	// Stel prescaler in op 1024 (CS22:0 = 5)
+	// prescaler op 1024
 	TCCR2 |= (1 << CS22) | (1 << CS21);
 	
-	// Bereken en stel de waarde van OCR2 in voor een periode van 15 ms
-	OCR2 = 146; // Bij prescaler 1024, 15 ms => 146 pulsen
+	OCR2 = 146; // prescaler 1024: 15 ms = 146 pulsen
 	
-	// Schakel interrupt voor compare match A in
+	// interrupt voor compare match A
 	TIMSK |= (1 << OCIE2);
 }
 
-// Interrupt Service Routine voor Timer/Counter 2 Compare Match A
+// isr voor timer/counter compare match A
 ISR(TIMER2_COMPA_vect) {
 	if (pulse_high) {
-		// Zet PORTD.7 (PD7) hoog
+		// portd 7 hoog
 		PORTD |= (1 << PD7);
 		
-		// Schakel naar laagpuls over na 15 ms
-		OCR2 = 244; // Bij prescaler 1024, 25 ms => 244 pulsen
+		OCR2 = 244; // prescaler 1024: 25 ms = 244 pulsen
 		pulse_high = 0;
 		} else {
-		// Zet PORTD.7 (PD7) laag
+		// portd 7 laag
 		PORTD &= ~(1 << PD7);
 		
-		// Schakel terug naar hoogpuls na 25 ms
-		OCR2 = 146; // Bij prescaler 1024, 15 ms => 146 pulsen
+		// terug naar hoogpuls na 25 ms
+		OCR2 = 146; // prescaler 1024: 15 ms = 146 pulsen
 		pulse_high = 1;
 	}
 }
 
 int main() {
-	// Zet PORTD.7 (PD7) en PD6 (extra LED) als uitgang
-	DDRD |= (1 << PD7) | (1 << PD6);
+	// portd 7 als uitgang
+	DDRD |= (1 << PD7);
 
-	// Initialisatie van Timer/Counter 2
 	timer2_init();
 
-	// Schakel globale interrupts in
+	// global interupts aanzetten
 	sei();
 
-	// Blijf in een oneindige lus
 	while (1) {
-		// Laat de extra LED (PD6) knipperen om te bevestigen dat het programma werkt
-		PORTD ^= (1 << PD6); // Toggle PD6
-		_delay_ms(500); // Wacht 500 ms
+		_delay_ms(1);
 	}
 
 	return 0;
