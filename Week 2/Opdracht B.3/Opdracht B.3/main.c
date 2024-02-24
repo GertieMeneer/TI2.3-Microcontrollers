@@ -3,7 +3,7 @@
 #include <util/delay.h>
 
 const unsigned char numbers[16] = {
-	// 7-segment display codes for digits 0 to F
+	// 7-segment display codes for digits 0-F
 	0b00111111, // 0
 	0b00000110, // 1
 	0b01011011, // 2
@@ -23,27 +23,27 @@ const unsigned char numbers[16] = {
 };
 
 int main(void) {
-	DDRD = 0xFF; // Set PORTD as output
-	PORTB |= (1 << PB1) | (1 << PB2); // Enable pull-up resistors for buttons connected to PB1 and PB2
+	DDRD = 0xFF; // portd as output
+	PORTB |= (1 << PB1) | (1 << PB2); // enable pull-up resistors
 	unsigned char index = 0;
 	unsigned char display_value = 0;
 
 	while (1) {
-		// Check button presses
-		if (!(PINB & (1 << PB1))) { // If PB1 button is pressed (up)
+		// check buttons
+		if (!(PINB & (1 << PB1))) { // if pb1 pressed
 			display_value++;
-			if (display_value > 15) display_value = 0; // Wrap around if display value exceeds F
-			_delay_ms(200); // Debounce delay
-			} else if (!(PINB & (1 << PB2))) { // If PB2 button is pressed (down)
+			if (display_value > 15) display_value = 0; // wrap around
+			_delay_ms(200);
+			} else if (!(PINB & (1 << PB2))) { //if pb2 down
 			display_value--;
-			if (display_value > 15) display_value = 15; // Ensure display_value doesn't go negative
-			_delay_ms(200); // Debounce delay
-			} else if (!((PINB & (1 << PB1)) && (PINB & (1 << PB2)))) { // If both buttons are pressed (reset)
+			if (display_value > 15) display_value = 15; // dont go negative
+			_delay_ms(200);
+			} else if (!((PINB & (1 << PB1)) && (PINB & (1 << PB2)))) { // if both pressed
 			display_value = 0;
-			_delay_ms(200); // Debounce delay
+			_delay_ms(200);
 		}
 
-		// Display the value
+		// display value
 		PORTD = numbers[display_value];
 	}
 
