@@ -11,13 +11,13 @@ void lcd_strobe_lcd_e();
 
 void wait( int ms ) {
 	for (int tms = 0; tms < ms; tms++) {
-		_delay_ms(1);			// library function (max 30 ms at 8MHz)
+		_delay_ms(1);
 	}
 }
 
 void adcInit(void) {
-	ADMUX = 0b01100000;	// AREF=VCC, result left adjusted, channel 0 at pin PF0
-	ADCSRA = 0b11100110;	// ADC-enable, no interrupt, start, free running, division by 64
+	ADMUX = 0b01100000;	// aref=vcc, result left adjusted, channel 0 at pin PF0
+	ADCSRA = 0b11100110;	// adc-enable, no interrupt, start, free running
 }
 
 void init_4bits_mode(void) {
@@ -32,12 +32,12 @@ void init_4bits_mode(void) {
 	PORTC = 0x80;
 	lcd_strobe_lcd_e();
 
-	PORTC = 0x00;   // Display on/off control
+	PORTC = 0x00;   // display on/off control
 	lcd_strobe_lcd_e();
 	PORTC = 0xF0;
 	lcd_strobe_lcd_e();
 
-	PORTC = 0x00;   // Entry mode set
+	PORTC = 0x00;   // entry mode set
 	lcd_strobe_lcd_e();
 	PORTC = 0x60;
 	lcd_strobe_lcd_e();
@@ -68,12 +68,12 @@ void lcd_write_string(char *str) {
 
 void lcd_write_command(unsigned char byte)
 {
-	// First nibble.
+	// first nibble
 	PORTC = byte;
 	PORTC &= ~(1<<LCD_RS);
 	lcd_strobe_lcd_e();
 
-	// Second nibble
+	// second nibble
 	PORTC = (byte<<4);
 	PORTC &= ~(1<<LCD_RS);
 	lcd_strobe_lcd_e();
@@ -92,29 +92,29 @@ void int_to_string_temperature(int temperature, char *buffer) {
 		temperature = -temperature;
 	}
 
-	// Extracting the digits of the temperature
+	// extracting digits of temperature
 	while (temperature != 0) {
 		digit = temperature % 10;
 		buffer[i++] = digit + '0';
 		temperature /= 10;
 	}
 
-	// Reversing the digits in the buffer
+	// reversing digits in buffer
 	int length = i;
 	for (int j = 0; j < length / 2; j++) {
 		char temp = buffer[j];
 		buffer[j] = buffer[length - j - 1];
 		buffer[length - j - 1] = temp;
 	}
-	// Null-terminate the string
+	// null-terminate the string
 	buffer[length] = '\0';
 }
 
 
 int main(void) {
-	DDRF = 0x00;    // set PORTF for input (ADC)
-	DDRA = 0xFF;    // set PORTA for output
-	DDRB = 0xFF;    // set PORTB for output
+	DDRF = 0x00;    // portf as input (adc)
+	DDRA = 0xFF;    // porta as output
+	DDRB = 0xFF;    // portb as output
 	init_4bits_mode();
 	adcInit();
 
@@ -124,14 +124,14 @@ int main(void) {
 		PORTB = ADCL;
 		PORTA = ADCH;
 		
-		lcd_write_command(0x01);  // Clear display command
+		lcd_write_command(0x01);  // clear display
 		
-		lcd_write_command(0x80);    // Move cursor to the beginning of the first line
-		int temperature = (ADCH * 5000UL) / 256; // Convert ADC value to temperature in millidegrees Celsius
-		int_to_string_temperature(temperature, buffer); // Convert temperature to string
-		lcd_write_string(buffer);   // Write temperature to LCD
+		lcd_write_command(0x80);    // move cursor to beginning, first line
+		int temperature = (ADCH * 5000UL) / 256; // convert adc to temperature in millidegrees Celsius
+		int_to_string_temperature(temperature, buffer); // temp to string
+		lcd_write_string(buffer);   // write temp
 
-		wait(1000); // every 100 ms (busy waiting)
+		wait(1000);
 	}
 
 	return 0;
