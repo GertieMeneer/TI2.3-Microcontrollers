@@ -21,7 +21,7 @@ void adcInit(void)
 
 void startADC(void)
 {
-	ADCSRA |= (1 << ADSC);  // start ADC conversion
+	ADCSRA |= (1 << ADSC);  // start adc conversion
 }
 
 int main(void)
@@ -34,10 +34,10 @@ int main(void)
 
 	while (1)
 	{
-		// Check if the button is pressed to trigger ADC conversion
+		// check if button is pressed
 		if (PINF & BIT(PF0)) {
 			startADC();     // start ADC conversion
-			while (ADCSRA & (1 << ADSC)); // Wait for ADC conversion to complete
+			while (ADCSRA & (1 << ADSC)); // wait for ADC conversion
 			PORTB = ADCL;   // show msb/lsb of adc
 			PORTA = ADCH;
 			wait(100);
