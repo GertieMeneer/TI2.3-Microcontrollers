@@ -5,38 +5,33 @@
 
 #define BIT(x)	(1 << (x))
 
-// wait(): busy waiting for 'ms' millisecond
-// Used library: util/delay.h
 void wait( int ms )
 {
 	for (int tms=0; tms<ms; tms++)
 	{
-		_delay_ms( 1 );			// library function (max 30 ms at 8MHz)
+		_delay_ms( 1 );
 	}
 }
 
 
-// Initialize ADC: 10-bits (left justified), free running
 void adcInit( void )
 {
-	ADMUX = 0b01100001;			// AREF=VCC, result left adjusted, channel1 at pin PF1
-	ADCSRA = 0b11100110;		// ADC-enable, no interrupt, start, free running, division by 64
-	// Freerunning-modus bij een ADC verwijst naar een modus waarin de ADC continu conversies uitvoert zonder externe triggering. Het bemonstert voortdurend het invoersignaal met een vooraf bepaalde snelheid en zet dit om in digitale waarden zonder de noodzaak van externe commando's
+	ADMUX = 0b01100001;		//aref=vcc, channel1 at pin pf1
+	ADCSRA = 0b11100110;	//adc-enable, no interrupt, start, free running
 }
 
 
-// Main program: ADC at PF1
 int main( void )
 {
-	DDRF = 0x00;				// set PORTF for input (ADC)
-	DDRA = 0xFF;				// set PORTA for output
-	DDRB = 0xFF;				// set PORTB for output
-	adcInit();					// initialize ADC
+	DDRF = 0x00;	//portf = input
+	DDRA = 0xFF;	//porta = output
+	DDRB = 0xFF;	//portb = output
+	adcInit();		//init adc
 
 	while (1)
 	{
-		PORTB = ADCL;			// Show MSB/LSB (bit 10:0) of ADC
+		PORTB = ADCL;	//show msb/lsb of adc
 		PORTA = ADCH;
-		wait(100);				// every 100 ms (busy waiting)
+		wait(100);
 	}
 }
