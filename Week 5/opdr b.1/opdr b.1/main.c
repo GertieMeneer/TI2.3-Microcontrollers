@@ -19,7 +19,7 @@ void wait(int ms) {
 	}
 }
 
-void spi_masterInit(void) {
+void spi_masterInit(void) {	
 	DDR_SPI = 0xff;
 	DDR_SPI &= ~BIT(SPI_MISO);
 	PORT_SPI |= BIT(SPI_SS);
@@ -61,6 +61,14 @@ void displayDriverInit() {
 	spi_slaveDeSelect(0);
 }
 
+void spi_writeWord(unsigned char address, unsigned char data) {
+	spi_slaveSelect(0);
+	spi_write(address);            // Write address byte
+	spi_write(data);               // Write data byte
+	spi_slaveDeSelect(0);          // Deselect display chip
+}
+
+
 int main() {
 	DDRB = 0x01;
 	spi_masterInit();
@@ -68,19 +76,13 @@ int main() {
 
 	// Clear display
 	for (char i = 1; i <= 4; i++) {
-		spi_slaveSelect(0);
-		spi_write(i);
-		spi_write(0);
-		spi_slaveDeSelect(0);
+		spi_writeWord(i, 0);
 	}
 	wait(1000);
 
 	// Write 1-2-3-4 to all four digits
 	for (char i = 1; i <= 4; i++) {
-		spi_slaveSelect(0);
-		spi_write(i);
-		spi_write(i);
-		spi_slaveDeSelect(0);
+		spi_writeWord(i, i);
 		wait(1000);
 	}
 
