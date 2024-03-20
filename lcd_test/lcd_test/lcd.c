@@ -132,23 +132,69 @@ void clear_lcd(void)
 	lcd_write_command(0x01);
 }
 
+void adcInit(void) {
+	ADMUX = 0b01100000;	// aref=vcc, result left adjusted, channel 0 at pin PF0
+	ADCSRA = 0b11100110;	// adc-enable, no interrupt, start, free running
+}
+
+void int_to_string_temperature(int temperature, char *buffer) {
+	int digit, i = 0;
+	if (temperature == 0) {
+		buffer[0] = '0';
+		buffer[1] = '\0';
+		return;
+	}
+
+	if (temperature < 0) {
+		buffer[i++] = '-';
+		temperature = -temperature;
+	}
+
+	// extracting digits of temperature
+	while (temperature != 0) {
+		digit = temperature % 10;
+		buffer[i++] = digit + '0';
+		temperature /= 10;
+	}
+
+	// reversing digits in buffer
+	int length = i;
+	for (int j = 0; j < length / 2; j++) {
+		char temp = buffer[j];
+		buffer[j] = buffer[length - j - 1];
+		buffer[length - j - 1] = temp;
+	}
+	// null-terminate the string
+	buffer[length] = '\0';
+}
+
 int main(void) {
 	DDRD = 0xFF;
+	DDRF = 0x00;    // portf as input (adc)
+	DDRA = 0xFF;    // porta as output
+	DDRB = 0xFF;    // portb as output
+	
 	
 	init();
+	adcInit();
 	init_4bits_mode();
 	
 	_delay_ms(1000);
 	
-	int degree = 35;
-	int lowdegree = 6;
+	char buffer[10];
 	
 	while (1)
 	{
-		char highest[] = "Highest: ";
-		char lowest[] = "Lowest: ";
+		PORTB = ADCL;
+		PORTA = ADCH;
 		
-		sprintf(highest, "Highest: %d", degree);
+		int temperature = ((ADCH * 5000UL) / 256) / 10; // omzetten naar graden Celsius
+		int_to_string_temperature(temperature, buffer); // temp to string
+		
+		char highest[20] = "Highest: ";
+		char lowest[20] = "Lowest: ";
+		
+		sprintf(highest, "Highest: %d", temperature);
 		
 		set_cursor(0);
 		lcd_write_string(highest, 0);
@@ -156,35 +202,11 @@ int main(void) {
 		_delay_ms(3000);
 		clear_lcd();
 		set_cursor(0);
-		sprintf(lowest, "Lowest: %d", lowdegree);
+		sprintf(lowest, "Lowest: %d", temperature);
 		
 		lcd_write_string(lowest, 0);
 		_delay_ms(3000);
 	}
-	
-	//LCD_Init();
-
-	//lcd_write_string(menus.highestTempMenu);
-	//print_highest_temp();
-	//set_cursor(0);
-	//_delay_ms(100);
-	//set_cursor(2);
-	
-	_delay_ms(5000);
-	lcd_write_string(menus.highestTempMenu, 0);
-	_delay_ms(100);
-	
-	lcd_write_command(0xC0);
-	char tekst[] = "wtf";
-	lcd_write_string(tekst, 0);
-
-	//while (1) {
-		//for (int i = 0; i < 32; i++)
-		//{
-			//set_cursor(i);
-			//_delay_ms(1000);
-		//}
-	//}
 
 	return 0;
 }

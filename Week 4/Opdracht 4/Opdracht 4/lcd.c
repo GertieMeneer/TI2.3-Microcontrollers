@@ -112,7 +112,7 @@ void int_to_string_temperature(int temperature, char *buffer) {
 
 
 int main(void) {
-	DDRF = 0x00;    // portf as input (adc)
+	DDRE = 0x00;    // portf as input (adc)
 	DDRA = 0xFF;    // porta as output
 	DDRB = 0xFF;    // portb as output
 	init_4bits_mode();
