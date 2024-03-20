@@ -11,7 +11,6 @@
 
 #include <avr/io.h>
 
-
 //init spi as master
 void spi_masterInit(void);
 
@@ -35,5 +34,7 @@ void writeCharacterMinusOnDisplay(unsigned char digitDisplay);
 
 //write a value to the led display
 void writeLedDisplay(int32_t value);
+
+void clearDisplay(void);
 
 #endif /* SPI_H_ */

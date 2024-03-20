@@ -67,18 +67,32 @@ void displayDriverInit() {
 
 
 //default commands for writing data
-void spi_writeWord(unsigned char address, unsigned char data) {
+void spi_writeWord(unsigned char digit, unsigned char value, unsigned char dot) {
+	// Selecteer de SPI-slave (display chip)
 	spi_slaveSelect(0);
-	spi_write(address);            // Write address byte
-	spi_write(data);               // Write data byte
-	spi_slaveDeSelect(0);          // Deselect display chip
+
+	// Schrijf het adresbyte (digit-nummer) naar de display chip
+	spi_write(digit);
+
+	// Construeer het databyte met de waarde van het cijfer en het dot-bit
+	unsigned char dataToSend = value & 0x0F;
+	if (dot) {
+		dataToSend |= 0x80; // Als dot aan is, zet het dot-bit
+	}
+
+	// Schrijf het databyte naar de display chip
+	spi_write(dataToSend);
+
+	// Deselecteer de display chip
+	spi_slaveDeSelect(0);
 }
+
 
 
 //for writing '-' on specific digit
 void writeCharacterMinusOnDisplay(unsigned char digitDisplay)
 {
-	spi_writeWord(digitDisplay, 10);
+	spi_writeWord(digitDisplay, 10, 0);
 }
 
 //write a value to the led display
@@ -96,12 +110,18 @@ void writeLedDisplay(int32_t value) {
 	digit2 = (value / 10) % 10;
 	digit1 = value % 10;
 
-	spi_writeWord(1, digit1);
-	spi_writeWord(2, digit2);
-	spi_writeWord(3, digit3);
-	spi_writeWord(4, digit4);
-
+	spi_writeWord(1, digit1, 0);
+	spi_writeWord(2, digit2, 1); // Write digit 2 with dot turned on
+	spi_writeWord(3, digit3, 0);
+	spi_writeWord(4, digit4, 0);
+	
 	if (negative) {
 		writeCharacterMinusOnDisplay(4); //only write '-' if negative number
+	}
+}
+
+void clearDisplay(void) {
+	for (char i = 1; i <= 4; i++) {
+		spi_writeWord(i, 0, 0);
 	}
 }
