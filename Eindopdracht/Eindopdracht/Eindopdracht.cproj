@@ -91,10 +91,10 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="delay.c">
+    <Compile Include="lcd.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="delay.h">
+    <Compile Include="lcd.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="main.c">
