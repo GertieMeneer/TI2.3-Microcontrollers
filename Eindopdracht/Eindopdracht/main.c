@@ -68,11 +68,15 @@ int main(void) {
 		if (timer_overflow >= 1) {
 			int temperature = (ADCH * 5000UL) / 256;
 			writeLedDisplay(temperature);
+			
+			if (temperature < lowestTemp) {
+				lowestTemp = temperature;
+			}
+			if (temperature > highestTemp) {
+				highestTemp = temperature;
+			}
 
 			if (!showLowTemp) {
-				if (temperature < lowestTemp) {
-					lowestTemp = temperature;
-				}
 				lcd_write_command(0x01);
 				_delay_ms(10);
 				char lowest[] = "Lowest";
@@ -91,9 +95,6 @@ int main(void) {
 				showLowTemp = 1;
 				
 				} else {
-				if (temperature > highestTemp) {
-					highestTemp = temperature;
-				}
 				lcd_write_command(0x01);
 				_delay_ms(10);
 				char highest[] = "Highest";
