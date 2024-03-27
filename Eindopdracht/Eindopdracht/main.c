@@ -40,6 +40,12 @@ ISR(TIMER1_COMPA_vect) {
 }
 
 int main(void) {
+	//spi_masterInit();
+	//displayDriverInit();
+	//
+	//clearDisplay();
+	//_delay_ms(10);
+	//writeLedDisplay(5);
 	_delay_ms(2000);
 	timer_init();
 	adcInit();
@@ -61,6 +67,7 @@ int main(void) {
 		// Check if 5 seconds have passed
 		if (timer_overflow >= 1) {
 			int temperature = (ADCH * 5000UL) / 256;
+			writeLedDisplay(temperature);
 
 			if (!showLowTemp) {
 				if (temperature < lowestTemp) {
