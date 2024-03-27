@@ -54,54 +54,58 @@ int main(void) {
 	_delay_ms(1000);
 	
 	int temperature = (ADCH * 5000UL) / 256;
-	float highestTemp = temperature / 10.0;
-	float lowestTemp = temperature / 10.0;
+	int highestTemp = temperature;
+	int lowestTemp = temperature;
 	
 	while (1) {
 		// Check if 5 seconds have passed
 		if (timer_overflow >= 1) {
 			int temperature = (ADCH * 5000UL) / 256;
 
-			if(!showLowTemp) {
-				if(temperature < lowestTemp) {
-					lowestTemp = temperature / 10.0;
+			if (!showLowTemp) {
+				if (temperature < lowestTemp) {
+					lowestTemp = temperature;
 				}
 				lcd_write_command(0x01);
 				_delay_ms(10);
-				char lowBuffer[20];
 				char lowest[] = "Lowest";
 				lcd_write_string(lowest);
 				_delay_ms(10);
 				lcd_write_command(192);
 				_delay_ms(10);
-				sprintf(lowBuffer, "Temp: %.1f", lowestTemp);
-				lcd_write_string(lowBuffer);
+				// Separate integer and fractional parts
+				int integerPart = lowestTemp / 10;
+				int fractionalPart = lowestTemp % 10;
+				char lowTempString[20];
+				// Format temperature with decimal point
+				sprintf(lowTempString, "Temp: %d.%d", integerPart, fractionalPart);
+				lcd_write_string(lowTempString);
 				_delay_ms(10);
 				showLowTemp = 1;
 				
-			} else {
-				if(temperature > highestTemp) {
-					highestTemp = temperature / 10.0;
+				} else {
+				if (temperature > highestTemp) {
+					highestTemp = temperature;
 				}
 				lcd_write_command(0x01);
 				_delay_ms(10);
-				char highBuffer[20];
 				char highest[] = "Highest";
 				lcd_write_string(highest);
 				_delay_ms(10);
 				lcd_write_command(192);
 				_delay_ms(10);
-				sprintf(highBuffer, "Temp: %.1f", highestTemp);
-				lcd_write_string(highBuffer);
+				// Separate integer and fractional parts
+				int integerPart = highestTemp / 10;
+				int fractionalPart = highestTemp % 10;
+				char highTempString[20];
+				// Format temperature with decimal point
+				sprintf(highTempString, "Temp: %d.%d", integerPart, fractionalPart);
+				lcd_write_string(highTempString);
 				_delay_ms(10);
 				showLowTemp = 0;
 			}
-			
 		}
 		timer_overflow = 0;
-		
-
 	}
 	return 0;
-
 }
