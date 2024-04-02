@@ -62,28 +62,28 @@ void displayDriverInit() {
 	
 	//^^^ these 4 blocks can be replaced with spi_writeWord,
 	//but to show the brightness and selecting all digits
-	//we leave them like this.
+	//we leave them like this :)
 }
 
 
 //default commands for writing data
 void spi_writeWord(unsigned char digit, unsigned char value, unsigned char dot) {
-	// Selecteer de SPI-slave (display chip)
+	// select spi-slave
 	spi_slaveSelect(0);
 
-	// Schrijf het adresbyte (digit-nummer) naar de display chip
+	// write addressbyte to display
 	spi_write(digit);
 
-	// Construeer het databyte met de waarde van het cijfer en het dot-bit
+	// create data-byte with value and dot-bit
 	unsigned char dataToSend = value & 0x0F;
 	if (dot) {
-		dataToSend |= 0x80; // Als dot aan is, zet het dot-bit
+		dataToSend |= 0x80; // toggle dot-bit
 	}
 
-	// Schrijf het databyte naar de display chip
+	// write databyte to spi display
 	spi_write(dataToSend);
 
-	// Deselecteer de display chip
+	// deselect spi slave
 	spi_slaveDeSelect(0);
 }
 

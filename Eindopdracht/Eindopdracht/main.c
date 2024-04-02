@@ -42,15 +42,14 @@ ISR(TIMER1_COMPA_vect) {
 }
 
 static void writeLcdData(char text[], int temp) {
-	lcd_write_command(0x01);
-	lcd_write_string(text);
-	lcd_write_command(192);
+	lcd_write_command(0x01);		//clear display
+	lcd_write_string(text);			//write the text
+	lcd_write_command(192);			//set cursor to next line		
 	int integerPart = temp / 10;
 	int fractionalPart = temp % 10;
-	char tempString[20];
-	sprintf(tempString, "Temp: %d.%d", integerPart, fractionalPart);
-	lcd_write_string(tempString);
-	_delay_ms(10);
+	char tempString[20];			//string to write to lcd
+	sprintf(tempString, "Temp: %d.%d", integerPart, fractionalPart);	//add temp value to string
+	lcd_write_string(tempString);	//write string to lcd
 }
 
 int main(void) {
@@ -69,6 +68,7 @@ int main(void) {
 	sei();
 	_delay_ms(1000);
 	
+	//first measurement
 	int temperature = (ADCH * 5000UL) / 256;
 	int highestTemp = temperature;
 	int lowestTemp = temperature;
@@ -76,23 +76,25 @@ int main(void) {
 	while (1) {
 		// check if timers has passed
 		if (timer_overflow >= 1) {
-			temperature = (ADCH * 5000UL) / 256;
-			writeLedDisplay(temperature);
+			temperature = (ADCH * 5000UL) / 256;	//measure temp
+			writeLedDisplay(temperature);			//write temp to spi display
 			
+			//check and set high/low temp
 			if (temperature < lowestTemp) {
 				lowestTemp = temperature;
 			}
 			if (temperature > highestTemp) {
 				highestTemp = temperature;
 			}
-
+			
+			//write low temp
 			if (!showLowTemp) {
 				writeLcdData(lowTempText, lowestTemp);
-				
+			//write high temp	
 			} else {
 				writeLcdData(highTempText, highestTemp);
 			}
-			showLowTemp = !showLowTemp;
+			showLowTemp = !showLowTemp;		//switch between low/high temp
 		}
 		timer_overflow = 0;
 	}
