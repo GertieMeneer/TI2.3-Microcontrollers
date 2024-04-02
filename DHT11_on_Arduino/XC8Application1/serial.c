@@ -1,4 +1,4 @@
-#define F_CPU 10000000UL
+#define F_CPU 16000000UL
 
 #include <avr/io.h>
 #include <util/delay.h>
@@ -6,8 +6,8 @@
 
 #include "serial.h"
 
-#define USART_BAUDRATE 9600 // Desired Baud Rate
-#define BAUD_PRESCALER (((F_CPU / (USART_BAUDRATE * 10UL))) - 1)
+#define USART_BAUDRATE 38400 // Desired Baud Rate
+#define BAUD_PRESCALER (((F_CPU / (USART_BAUDRATE * 16UL))) - 1)
 
 #define ASYNCHRONOUS (0 << UMSEL00) // USART Mode Selection
 
