@@ -73,6 +73,7 @@ void lcd_write_string(char *str) {
 	for(;*str; str++){
 		lcd_write_data(*str);
 	}
+	_delay_ms(10);
 }
 
 /******************************************************************
@@ -111,4 +112,5 @@ void lcd_write_command(unsigned char byte) {
 	PORTC = (byte<<4);
 	PORTC &= ~(1<<LCD_RS);
 	lcd_strobe_lcd_e();
+	_delay_ms(10);
 }
